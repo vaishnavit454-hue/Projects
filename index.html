@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Margin — Local Knowledge Retrieval for Writers</title>
+  <meta name="description" content="A zero-backend, local-only knowledge retrieval tool for writers. Runs completely in the browser with offline storage.">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+  <!-- Top Bar (Minimalist Header) -->
+  <header class="top-bar">
+    <div class="top-bar-left">
+      <div class="logo-group">
+        <div class="logo-symbol" aria-hidden="true">M</div>
+        <span class="app-title">Margin</span>
+      </div>
+      <span class="app-subtitle-pill">Local Collider</span>
+    </div>
+
+    <div class="top-bar-center">
+      <button class="sample-prompts-btn" id="samplePromptsBtn" title="Load a sample draft to test collision">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+        </svg>
+        <span>Sample Drafts</span>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+
+      <!-- Sample Prompts Dropdown Menu -->
+      <div class="dropdown-menu" id="sampleDropdown">
+        <button class="dropdown-item" data-draft="memex">
+          <span class="dropdown-item-title">Vannevar Bush & Memex</span>
+          <span class="dropdown-item-desc">Associational indexing, memory, augmentation</span>
+        </button>
+        <button class="dropdown-item" data-draft="thinking">
+          <span class="dropdown-item-title">Writing as Thinking</span>
+          <span class="dropdown-item-desc">Clutter, putting ideas to words, clarity</span>
+        </button>
+        <button class="dropdown-item" data-draft="serendipity">
+          <span class="dropdown-item-title">Serendipity & Slow Hunches</span>
+          <span class="dropdown-item-desc">Linked notes, cross-pollination, breakthroughs</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="top-bar-right">
+      <div class="clip-stats-pill" title="Total highlights stored in local storage">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <span id="headerClipCount">7 saved</span>
+      </div>
+
+      <button class="settings-btn" id="settingsBtn" title="Manage clips, add highlights, and test bookmarklet">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        <span>Settings / Test Data</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Split-Screen Grid Layout (60% / 40%) -->
+  <main class="app-workspace">
+
+    <!-- Left Panel (60% width): Minimalist Borderless Writing Canvas -->
+    <section class="left-panel">
+      <div class="draft-toolbar">
+        <span class="draft-label">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
+            <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
+            <path d="M2 2l7.586 7.586"></path>
+            <circle cx="11" cy="11" r="2"></circle>
+          </svg>
+          Drafting Canvas
+        </span>
+        <div class="draft-actions">
+          <button class="ghost-btn" id="clearDraftBtn" title="Clear current draft">Clear</button>
+        </div>
+      </div>
+
+      <div class="textarea-container">
+        <!-- Clean borderless textarea per spec -->
+        <textarea 
+          id="draftTextarea" 
+          class="draft-textarea" 
+          placeholder="Paste your draft here to collide it with your saved highlights..." 
+          spellcheck="true"
+        ></textarea>
+      </div>
+
+      <footer class="draft-footer">
+        <div class="footer-stats">
+          <span id="statWordCount">0 words</span>
+          <span>•</span>
+          <span id="statCharCount">0 chars</span>
+          <span>•</span>
+          <span id="statReadTime">0 min read</span>
+        </div>
+
+        <div class="engine-status-indicator" title="Automatic 500ms debounce collision detection">
+          <span class="status-dot" id="engineStatusDot"></span>
+          <span id="engineStatusText">Engine idle</span>
+        </div>
+      </footer>
+    </section>
+
+    <!-- Right Panel (40% width): The Collision Board -->
+    <aside class="right-panel">
+      <div class="collision-header">
+        <div class="collision-title-wrap">
+          <h2 class="collision-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            Collision Board
+          </h2>
+          <span class="collision-desc">Ranked by heavy concept overlap</span>
+        </div>
+        <span class="match-count-badge" id="matchCountBadge">0 matches</span>
+      </div>
+
+      <!-- Scrollable content area for cards / empty state -->
+      <div class="collision-board-body" id="collisionBoardBody">
+        <!-- Dynamically rendered via app.js -->
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- Settings & Test Data Modal (Mocking the Bookmarklet) -->
+  <div class="modal-overlay" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <h3 class="modal-title" id="modalTitle">Knowledge Base & Test Data</h3>
+          <span class="modal-subtitle">Manage clips stored in localStorage ('collider_clips')</span>
+        </div>
+        <button class="modal-close-btn" id="modalCloseBtn" aria-label="Close modal">✕</button>
+      </div>
+
+      <div class="modal-body">
+        
+        <!-- Section 1: Add Clip Form (Mocking Bookmarklet input) -->
+        <section class="modal-section">
+          <div class="section-title-wrap">
+            <h4 class="modal-section-title">Add Highlight (Simulate Bookmarklet)</h4>
+          </div>
+          <p class="modal-section-desc">
+            Manually save a URL and an excerpt to your local storage to test real-time collisions.
+          </p>
+
+          <form id="addClipForm">
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label for="inputClipUrl" class="form-label">Source URL</label>
+              <input 
+                type="text" 
+                id="inputClipUrl" 
+                class="form-input" 
+                placeholder="https://example.com/essay-title" 
+                required 
+              />
+            </div>
+
+            <div class="form-group" style="margin-bottom: 14px;">
+              <label for="inputClipText" class="form-label">Highlighted Text Snippet</label>
+              <textarea 
+                id="inputClipText" 
+                class="form-input form-textarea" 
+                placeholder="Paste the highlighted excerpt or quote here..." 
+                required
+              ></textarea>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn-primary">
+                + Save Clip to Storage
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <hr style="border: none; border-top: 1px solid var(--border-light);" />
+
+        <!-- Section 2: Manage Saved Clips -->
+        <section class="modal-section">
+          <div class="section-title-wrap">
+            <h4 class="modal-section-title">
+              Saved Clips in localStorage <span id="modalClipsCount" style="color: var(--text-muted); font-weight: normal;">(7)</span>
+            </h4>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn-secondary" id="resetSamplesBtn" style="padding: 4px 10px; font-size: 11px;">
+                Reset Sample Clips
+              </button>
+              <button class="btn-danger-outline" id="clearAllClipsBtn">
+                Clear All
+              </button>
+            </div>
+          </div>
+
+          <div class="clips-manage-list" id="clipsManageList">
+            <!-- Populated via app.js -->
+          </div>
+        </section>
+
+        <hr style="border: none; border-top: 1px solid var(--border-light);" />
+
+        <!-- Section 3: The Bookmarklet (For Real Browser Use) -->
+        <section class="modal-section">
+          <div class="section-title-wrap">
+            <h4 class="modal-section-title">Real Browser Bookmarklet</h4>
+            <button class="btn-secondary" id="copyBookmarkletBtn" style="padding: 4px 10px; font-size: 11px;">
+              Copy Code
+            </button>
+          </div>
+          <p class="modal-section-desc">
+            To clip highlights directly from any website into Margin while reading, save this bookmarklet to your browser's bookmarks bar:
+          </p>
+          <div class="bookmarklet-box">
+            <code class="bookmarklet-code">javascript:(function(){const s=window.getSelection().toString().trim();if(!s){alert('Please highlight text first!');return;}const url=window.location.href;const clips=JSON.parse(localStorage.getItem('collider_clips')||'[]');clips.unshift({id:'clip_'+Date.now(),url:url,highlighted_text:s,date_saved:new Date().toISOString()});localStorage.setItem('collider_clips',JSON.stringify(clips));alert('Saved to Margin!');})();</code>
+          </div>
+        </section>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Application Script -->
+  <script src="./app.js"></script>
+</body>
+</html>
